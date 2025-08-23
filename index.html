@@ -2,158 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Panel</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: linear-gradient(to right, #ff416c, #ff4b2b, #1e90ff, #32cd32);
-      color: #fff;
-    }
-    header {
-      background: #222;
-      padding: 15px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      background: #333;
-    }
-    nav button {
-      padding: 12px 20px;
-      border: none;
-      cursor: pointer;
-      background: #444;
-      color: #fff;
-      font-size: 16px;
-      transition: 0.3s;
-    }
-    nav button:hover {
-      background: #ff6347;
-    }
-    .section {
-      display: none;
-      padding: 20px;
-      text-align: center;
-    }
-    .active {
-      display: block;
-    }
-    .card {
-      background: rgba(0,0,0,0.4);
-      margin: 20px auto;
-      padding: 20px;
-      max-width: 400px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    }
-    input, select {
-      padding: 10px;
-      width: 90%;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: none;
-    }
-    button.action {
-      background: #ff6347;
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: 0.3s;
-    }
-    button.action:hover {
-      background: #ff4500;
-    }
+    body { font-family: Arial, sans-serif; background:#fffbe6; text-align:center; }
+    .card { background:#ffd700; border-radius:20px; padding:20px; margin:20px; box-shadow:0 0 10px #aaa; }
+    button { padding:10px 20px; margin:10px; border:none; border-radius:20px; cursor:pointer; }
+    .gold-btn { background:#ffcc00; }
+    .red-btn { background:#ff4444; color:#fff; }
+    .green-btn { background:#44c767; color:#fff; }
   </style>
 </head>
 <body>
-  <header>User Panel</header>
-  <nav>
-    <button onclick="showSection('dashboard')">Dashboard</button>
-    <button onclick="showSection('deposit')">Deposit</button>
-    <button onclick="showSection('withdraw')">Withdraw</button>
-  </nav>
 
-  <!-- Dashboard -->
-  <div id="dashboard" class="section active">
-    <div class="card">
-      <h2>Welcome to Your Dashboard</h2>
-      <p><b>Balance:</b> PKR <span id="balance">0</span></p>
-      <button class="action" onclick="buyPlan()">Buy Plan (5000 PKR)</button>
-      <p id="timer"></p>
-    </div>
+  <h1>User Panel</h1>
+  <div class="card">
+    <h2>Balance: <span id="balance">0</span> PKR</h2>
+    <h3 id="profitInfo"></h3>
   </div>
 
-  <!-- Deposit -->
-  <div id="deposit" class="section">
-    <div class="card">
-      <h2>Deposit</h2>
-      <p>Send amount to the following accounts:</p>
-      <p><b>EasyPaisa:</b> 03319535871</p>
-      <p><b>JazzCash:</b> 03159676813</p>
-      <input type="text" placeholder="Enter Transaction ID">
-      <button class="action">Submit</button>
-    </div>
+  <div class="card">
+    <h2>Buy Plan</h2>
+    <button class="gold-btn" onclick="buyPlan()">Buy (5000 PKR)</button>
+    <p id="timer"></p>
   </div>
 
-  <!-- Withdraw -->
-  <div id="withdraw" class="section">
-    <div class="card">
-      <h2>Withdraw</h2>
-      <input type="number" placeholder="Enter Amount">
-      <select>
-        <option value="easypaisa">EasyPaisa</option>
-        <option value="jazzcash">JazzCash</option>
-      </select>
-      <input type="text" placeholder="Enter Your Account Number">
-      <button class="action">Request Withdraw</button>
-    </div>
+  <div class="card">
+    <h2>Deposit</h2>
+    <input id="depAmount" type="number" placeholder="Enter amount">
+    <button class="green-btn" onclick="deposit()">Submit Deposit</button>
+    <p>(Deposit goes to Admin for approval)</p>
   </div>
 
-  <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+  <div class="card">
+    <h2>Withdraw</h2>
+    <input id="withAmount" type="number" placeholder="Enter amount">
+    <button class="red-btn" onclick="withdraw()">Submit Withdraw</button>
+    <p>(Withdraw goes to Admin for approval)</p>
+  </div>
+
+<script>
+let balance = parseInt(localStorage.getItem("balance")||0);
+document.getElementById("balance").innerText = balance;
+
+// Buy plan
+function buyPlan(){
+  if(balance >= 5000){
+    balance -= 5000;
+    localStorage.setItem("balance", balance);
+    document.getElementById("balance").innerText = balance;
+    let end = Date.now() + 24*60*60*1000;
+    localStorage.setItem("planEnd", end);
+    runTimer();
+  } else {
+    alert("Not enough balance!");
+  }
+}
+
+// Timer
+function runTimer(){
+  let end = localStorage.getItem("planEnd");
+  if(!end) return;
+  let timerEl = document.getElementById("timer");
+  let x = setInterval(()=>{
+    let now = Date.now();
+    let dist = end - now;
+    if(dist <= 0){
+      clearInterval(x);
+      balance += 833;
+      localStorage.setItem("balance", balance);
+      document.getElementById("balance").innerText = balance;
+      localStorage.removeItem("planEnd");
+      timerEl.innerText = "Profit added: 833 PKR!";
+    } else {
+      let h = Math.floor(dist/(1000*60*60));
+      let m = Math.floor((dist%(1000*60*60))/(1000*60));
+      let s = Math.floor((dist%(1000*60))/1000);
+      timerEl.innerText = `Profit in ${h}h ${m}m ${s}s`;
     }
+  },1000);
+}
+runTimer();
 
-    let balance = 0;
-    let timerInterval;
+// Deposit request
+function deposit(){
+  let amt = document.getElementById("depAmount").value;
+  if(amt>0){
+    let reqs = JSON.parse(localStorage.getItem("deposits")||"[]");
+    reqs.push({amount:amt,status:"pending"});
+    localStorage.setItem("deposits", JSON.stringify(reqs));
+    alert("Deposit request sent to Admin!");
+  }
+}
 
-    function buyPlan() {
-      if (balance >= 5000) {
-        balance -= 5000;
-        document.getElementById("balance").innerText = balance;
-        startTimer();
-        alert("Plan Activated! You will earn PKR 833 every 24 hours.");
-      } else {
-        alert("Insufficient Balance! Please deposit first.");
-      }
-    }
+// Withdraw request
+function withdraw(){
+  let amt = document.getElementById("withAmount").value;
+  if(amt>0){
+    let reqs = JSON.parse(localStorage.getItem("withdraws")||"[]");
+    reqs.push({amount:amt,status:"pending"});
+    localStorage.setItem("withdraws", JSON.stringify(reqs));
+    alert("Withdraw request sent to Admin!");
+  }
+}
+</script>
 
-    function startTimer() {
-      let seconds = 24 * 60 * 60;
-      timerInterval = setInterval(() => {
-        seconds--;
-        let hrs = Math.floor(seconds / 3600);
-        let mins = Math.floor((seconds % 3600) / 60);
-        let secs = seconds % 60;
-        document.getElementById("timer").innerText = `Next profit in: ${hrs}h ${mins}m ${secs}s`;
-
-        if (seconds <= 0) {
-          clearInterval(timerInterval);
-          balance += 833;
-          document.getElementById("balance").innerText = balance;
-          alert("You received PKR 833 profit!");
-        }
-      }, 1000);
-    }
-  </script>
 </body>
 </html>
