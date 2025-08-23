@@ -4,40 +4,65 @@
   <meta charset="UTF-8">
   <title>User Panel</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#fffbe6; text-align:center; }
-    .card { background:#ffd700; border-radius:20px; padding:20px; margin:20px; box-shadow:0 0 10px #aaa; }
-    button { padding:10px 20px; margin:10px; border:none; border-radius:20px; cursor:pointer; }
-    .gold-btn { background:#ffcc00; }
-    .red-btn { background:#ff4444; color:#fff; }
+    body { font-family: Arial, sans-serif; background:#fffdf5; text-align:center; }
+    h1 { color:#b8860b; }
+    .card {
+      background:#fff; border-radius:20px; padding:20px; margin:20px auto; width:90%;
+      max-width:400px; box-shadow:0 0 12px rgba(0,0,0,0.1);
+    }
+    #balanceCircle {
+      width:180px; height:180px; border-radius:50%;
+      background: radial-gradient(circle, #ffd700, #b8860b);
+      margin:20px auto; display:flex; align-items:center; justify-content:center;
+      font-size:20px; font-weight:bold; color:#fff; cursor:pointer;
+      box-shadow:0 0 20px gold; transition:0.3s;
+      flex-direction: column;
+    }
+    #balanceCircle:hover { transform: scale(1.07); }
+    button {
+      padding:10px 20px; margin:10px; border:none; border-radius:20px; cursor:pointer;
+    }
     .green-btn { background:#44c767; color:#fff; }
+    .red-btn { background:#ff4444; color:#fff; }
+    input, select {
+      padding:8px; margin:5px; border:1px solid #ccc; border-radius:10px;
+      width:80%;
+    }
   </style>
 </head>
 <body>
 
   <h1>User Panel</h1>
-  <div class="card">
-    <h2>Balance: <span id="balance">0</span> PKR</h2>
-    <h3 id="profitInfo"></h3>
-  </div>
 
   <div class="card">
-    <h2>Buy Plan</h2>
-    <button class="gold-btn" onclick="buyPlan()">Buy (5000 PKR)</button>
-    <p id="timer"></p>
+    <div id="balanceCircle" onclick="buyPlan()">
+      <span>Buy Plan</span>
+      <small>5000 PKR</small>
+    </div>
+    <p><b>Balance:</b> <span id="balance">0</span> PKR</p>
+    <h3 id="timer"></h3>
   </div>
 
   <div class="card">
     <h2>Deposit</h2>
-    <input id="depAmount" type="number" placeholder="Enter amount">
+    <p><b>Send money to:</b></p>
+    <p>EasyPaisa: <b>03319535871</b></p>
+    <p>JazzCash: <b>03159676813</b></p>
+
+    <select id="payMethod">
+      <option value="EasyPaisa">EasyPaisa</option>
+      <option value="JazzCash">JazzCash</option>
+    </select>
+    <br>
+    <input id="userNumber" type="text" placeholder="Enter your number"><br>
+    <input id="depAmount" type="number" placeholder="Enter amount"><br>
     <button class="green-btn" onclick="deposit()">Submit Deposit</button>
-    <p>(Deposit goes to Admin for approval)</p>
   </div>
 
   <div class="card">
     <h2>Withdraw</h2>
-    <input id="withAmount" type="number" placeholder="Enter amount">
+    <input id="withAmount" type="number" placeholder="Enter amount"><br>
     <button class="red-btn" onclick="withdraw()">Submit Withdraw</button>
-    <p>(Withdraw goes to Admin for approval)</p>
   </div>
 
 <script>
@@ -46,6 +71,10 @@ document.getElementById("balance").innerText = balance;
 
 // Buy plan
 function buyPlan(){
+  if(localStorage.getItem("planEnd")){
+    alert("Plan already running!");
+    return;
+  }
   if(balance >= 5000){
     balance -= 5000;
     localStorage.setItem("balance", balance);
@@ -53,6 +82,7 @@ function buyPlan(){
     let end = Date.now() + 24*60*60*1000;
     localStorage.setItem("planEnd", end);
     runTimer();
+    alert("Plan purchased successfully! Timer started.");
   } else {
     alert("Not enough balance!");
   }
@@ -86,11 +116,16 @@ runTimer();
 // Deposit request
 function deposit(){
   let amt = document.getElementById("depAmount").value;
-  if(amt>0){
+  let method = document.getElementById("payMethod").value;
+  let num = document.getElementById("userNumber").value;
+
+  if(amt>0 && num){
     let reqs = JSON.parse(localStorage.getItem("deposits")||"[]");
-    reqs.push({amount:amt,status:"pending"});
+    reqs.push({amount:amt, method:method, number:num, status:"pending"});
     localStorage.setItem("deposits", JSON.stringify(reqs));
     alert("Deposit request sent to Admin!");
+  } else {
+    alert("Please enter all details.");
   }
 }
 
