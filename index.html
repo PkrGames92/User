@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Game — Simple Investment</title>
+<style>
+  :root{
+    --c1:#ef4444; /* red */
+    --c2:#8b5cf6; /* purple */
+    --c3:#22c55e; /* green */
+    --c4:#f59e0b; /* orange */
+    --ink:#0f172a;
+  }
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial}
+  .wrap{max-width:780px;margin:auto;padding:16px}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .btnlink{font-weight:800;font-size:28px;cursor:pointer}
+  .w {color:var(--c1)} .d {color:var(--c2)}
+  .balance{text-align:center;margin:24px 0 10px;font-size:34px;font-weight:800;color:var(--ink)}
+  .tags{text-align:center;margin-top:6px}
+  .pill{display:inline-block;background:#f4f4f5;border-radius:999px;padding:6px 10px;margin:0 4px;font-size:12px}
+  .circle{display:grid;place-items:center;margin:8px 0 20px}
+  .outer{width:300px;height:300px;border:10px solid var(--ink);border-radius:50%;display:grid;place-items:center}
+  .inner{width:220px;height:220px;border:10px solid var(--c1);border-radius:50%;display:grid;place-items:center}
+  .buy{border:none;background:none;font-size:40px;font-weight:800;color:var(--c1);cursor:pointer}
+  .tabs{display:flex;gap:8px;justify-content:center;margin:8px 0 16px}
+  .tab{padding:10px 14px;border-radius:999px;border:1px solid #e5e7eb;background:#fafafa;cursor:pointer}
+  .tab.on{border-color:#000}
+  .card{border:1px solid #e5e7eb;border-radius:16px;padding:16px;margin:10px 0;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+  label{display:block;margin:8px 0 6px;font-weight:700}
+  input,select{width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .primary{width:100%;padding:12px;border:none;border-radius:14px;color:#fff;font-weight:800;background:linear-gradient(90deg,var(--c3),var(--c2))}
+  .danger{background:linear-gradient(90deg,var(--c1),var(--c4))}
+  .list{display:grid;gap:10px}
+  .tag {font-size:12px;color:#475569}
+  .about{font-size:38px;font-weight:900;text-align:center;margin:14px 0 8px;color:var(--ink)}
+  .note{font-size:12px;color:#6b7280}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="btnlink w" id="gotoW">Withdrawal</div>
+    <div class="btnlink d" id="gotoD">Deposit</div>
+  </div>
+
+  <div class="balance">
+    Balance: <span id="bal">Rs 0</span>
+    <div class="tags">
+      <span class="pill" id="timer">—</span>
+      <span class="pill" id="pstat">Plan: OFF</span>
+    </div>
+  </div>
+
+  <div class="circle">
+    <div class="outer"><div class="inner">
+      <button id="buy" class="buy">Buy Plan</button>
+    </div></div>
+  </div>
+
+  <div class="about">About</div>
+  <div class="card">
+    یہ سادہ ڈیمو گیم ہے۔ Buy Plan کے لیے کم ازکم <b>Rs 5000</b> درکار ہیں۔ بٹن دبانے پر بیلنس
+    زیرو اور پلان آن ہو جاتا ہے؛ ہر <b>24 گھنٹے</b> بعد <b>Rs 833</b> خودکار طریقے سے شامل ہوتے ہیں۔
+    ڈیپوزٹ/وڈرا ریکویسٹ ایڈمن پینل سے اپروو/ریجیکٹ ہوتی ہیں۔
+    <div class="note">Demo only — کوئی حقیقی پیمنٹ نہیں۔</div>
+  </div>
+
+  <!-- Deposit -->
+  <div class="card" id="dep">
+    <h3 style="color:var(--c2)">Deposit</h3>
+    <div class="row">
+      <div>
+        <label>Amount (Rs)</label>
+        <input id="depAmt" type="number" min="1" placeholder="مثلاً 5000">
+      </div>
+      <div>
+        <label>Method</label>
+        <select id="depMethod">
+          <option>JazzCash</option>
+          <option>Easypaisa</option>
+        </select>
+      </div>
+    </div>
+    <label>Transaction ID</label>
+    <input id="depTx" placeholder="اپنا Txn ID درج کریں">
+    <label>Sender Number (optional)</label>
+    <input id="depFrom" placeholder="03xx-xxxxxxx">
+    <div class="tag" id="recv">Receiver: JazzCash 03159676813 • Easypaisa 03319535871</div>
+    <button class="primary" id="depSend">Submit Deposit</button>
+    <div class="list" id="myDeps" style="margin-top:10px"></div>
+  </div>
+
+  <!-- Withdraw -->
+  <div class="card" id="wd" style="display:none">
+    <h3 style="color:var(--c1)">Withdrawal</h3>
+    <div class="row">
+      <div>
+        <label>Amount (Rs)</label>
+        <input id="wdAmt" type="number" min="1" placeholder="رقم">
+      </div>
+      <div>
+        <label>Method</label>
+        <select id="wdMethod">
+          <option>JazzCash</option>
+          <option>Easypaisa</option>
+        </select>
+      </div>
+    </div>
+    <label>Receiver Number</label>
+    <input id="wdNum" placeholder="اپنا نمبر">
+    <button class="primary danger" id="wdSend">Request Withdrawal</button>
+    <div class="list" id="myWds" style="margin-top:10px"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-t="dep">Deposit</button>
+    <button class="tab" data-t="wd">Withdrawal</button>
+  </div>
+</div>
+
+<script>
+/* ---------- CONFIG ---------- */
+const NUM = { JazzCash:"03159676813", Easypaisa:"03319535871" };
+const DAY = 24*60*60*1000, PROFIT=833, FORCE_ZERO=true;
+const SKEY="simple_game_state_v1";
+
+/* ---------- STATE ---------- */
+const blank=()=>({balance:0,plan:false,last:0,deposits:[],withdrawals:[]});
+let S = JSON.parse(localStorage.getItem(SKEY)||"null") || blank();
+const $ = id=>document.getElementById(id);
+const fmt=n=>"Rs "+Number(n||0).toLocaleString();
+
+/* ---------- RENDER ---------- */
+function render(){
+  // settle profits
+  if(S.plan && S.last){
+    const now=Date.now(), elapsed=now-S.last;
+    if(elapsed>=DAY){
+      const d=Math.floor(elapsed/DAY);
+      S.balance+=d*PROFIT; S.last+=d*DAY; save();
+    }
+  }
+  $("bal").textContent=fmt(S.balance);
+  $("pstat").textContent="Plan: "+(S.plan?"ON":"OFF");
+  $("timer").textContent= S.plan? leftTime(S.last+DAY-Date.now()) : "—";
+  $("recv").textContent=`Receiver: JazzCash ${NUM.JazzCash} • Easypaisa ${NUM.Easypaisa}`;
+
+  $("myDeps").innerHTML = S.deposits.slice().reverse().map(x=>cardRow(
+    `${fmt(x.amount)} • ${x.method}`, x.status, `Txn: ${x.tx||"-"} | From: ${x.from||"-"}`, x.time
+  )).join("") || `<div class="tag">No deposits yet.</div>`;
+
+  $("myWds").innerHTML = S.withdrawals.slice().reverse().map(x=>cardRow(
+    `${fmt(x.amount)} • ${x.method} → ${x.number||"-"}`, x.status, "", x.time
+  )).join("") || `<div class="tag">No withdrawals yet.</div>`;
+}
+function cardRow(title, status, sub, t){
+  return `<div style="border:1px dashed #e5e7eb;border-radius:12px;padding:10px">
+    <div style="display:flex;justify-content:space-between"><b>${title}</b><span class="pill">${status}</span></div>
+    <div class="tag">${sub}</div><div class="tag">${new Date(t).toLocaleString()}</div>
+  </div>`;
+}
+function leftTime(ms){ if(ms<0) ms=0; const s=Math.floor(ms/1000); const h=String(Math.floor(s/3600)).padStart(2,"0");
+  const m=String(Math.floor((s%3600)/60)).padStart(2,"0"); const ss=String(s%60).padStart(2,"0"); return `${h}:${m}:${ss}`; }
+function save(){ localStorage.setItem(SKEY, JSON.stringify(S)); }
+
+/* ---------- EVENTS ---------- */
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");
+  ["dep","wd"].forEach(id=>$(id).style.display = (b.dataset.t===id)?"block":"none");
+});
+$("gotoD").onclick=()=>document.querySelector('[data-t="dep"]').click();
+$("gotoW").onclick=()=>document.querySelector('[data-t="wd"]').click();
+
+$("buy").onclick=()=>{
+  if(S.plan){ alert("Plan already active."); return; }
+  if(S.balance<5000){ alert("کم از کم Rs 5000 بیلنس چاہیے."); return; }
+  S.balance = FORCE_ZERO?0:(S.balance-5000); S.plan=true; S.last=Date.now(); save(); render();
+  alert("Plan started — اگلا منافع 24 گھنٹے بعد۔");
+};
+
+$("depSend").onclick=()=>{
+  const amount=Number($("depAmt").value||0), method=$("depMethod").value,
+        tx=$("depTx").value.trim(), from=$("depFrom").value.trim();
+  if(amount<=0){ alert("صحیح رقم درج کریں."); return; }
+  S.deposits.push({id:uid(),amount,method,tx,from,status:"pending",time:Date.now()});
+  save(); render();
+  $("depAmt").value=""; $("depTx").value=""; $("depFrom").value="";
+  alert(`Send to ${method} ${NUM[method]} اور انتظار کریں (Admin approval).`);
+};
+
+$("wdSend").onclick=()=>{
+  const amount=Number($("wdAmt").value||0), method=$("wdMethod").value, number=$("wdNum").value.trim();
+  if(amount<=0){ alert("صحیح رقم درج کریں."); return; }
+  if(amount>S.balance){ alert("اتنا بیلنس موجود نہیں."); return; }
+  S.withdrawals.push({id:uid(),amount,method,number,status:"pending",time:Date.now()});
+  save(); render(); $("wdAmt").value=""; $("wdNum").value="";
+  alert("Withdrawal submitted. Admin approval pending.");
+};
+
+/* ---------- UTIL ---------- */
+function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+
+/* ---------- LOOP ---------- */
+setInterval(()=>{ render(); }, 1000);
+render();
+</script>
+</body>
+</html>
