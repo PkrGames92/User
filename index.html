@@ -4,142 +4,130 @@
   <meta charset="UTF-8">
   <title>User Panel</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#fffdf5; text-align:center; }
-    h1 { color:#b8860b; }
-    .card {
-      background:#fff; border-radius:20px; padding:20px; margin:20px auto; width:90%;
-      max-width:400px; box-shadow:0 0 12px rgba(0,0,0,0.1);
+    body { font-family: Arial, sans-serif; text-align: center; background: #f9f9f9; }
+    h1 { color: #444; }
+    .circle {
+      width: 150px; height: 150px;
+      border-radius: 50%;
+      background: gold; color: #222;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: bold; margin: 20px auto;
+      cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    #balanceCircle {
-      width:180px; height:180px; border-radius:50%;
-      background: radial-gradient(circle, #ffd700, #b8860b);
-      margin:20px auto; display:flex; align-items:center; justify-content:center;
-      font-size:20px; font-weight:bold; color:#fff; cursor:pointer;
-      box-shadow:0 0 20px gold; transition:0.3s;
-      flex-direction: column;
-    }
-    #balanceCircle:hover { transform: scale(1.07); }
-    button {
-      padding:10px 20px; margin:10px; border:none; border-radius:20px; cursor:pointer;
-    }
-    .green-btn { background:#44c767; color:#fff; }
-    .red-btn { background:#ff4444; color:#fff; }
-    input, select {
-      padding:8px; margin:5px; border:1px solid #ccc; border-radius:10px;
-      width:80%;
-    }
+    .section { margin: 20px; padding: 15px; background: #fff; border-radius: 10px; box-shadow: 0 0 5px rgba(0,0,0,0.2);}
+    label { display: block; margin: 5px 0; }
+    input, select, button { padding: 8px; margin: 5px; width: 80%; }
+    button { background: #222; color: #fff; border: none; cursor: pointer; }
+    #timer { font-weight: bold; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <h1>User Panel</h1>
+  <h2>Balance: <span id="balance">0</span> PKR</h2>
 
-  <div class="card">
-    <div id="balanceCircle" onclick="buyPlan()">
-      <span>Buy Plan</span>
-      <small>5000 PKR</small>
-    </div>
-    <p><b>Balance:</b> <span id="balance">0</span> PKR</p>
-    <h3 id="timer"></h3>
+  <!-- Buy Plan -->
+  <div class="circle" onclick="buyPlan()">Buy Plan</div>
+  <div id="timer">No active plan</div>
+
+  <!-- Deposit -->
+  <div class="section">
+    <h3>Deposit</h3>
+    <p>Send to Easypaisa: <b>03319535871</b></p>
+    <p>Send to JazzCash: <b>03159676813</b></p>
+    <form onsubmit="makeDeposit(event)">
+      <label>Method</label>
+      <select id="depositMethod">
+        <option value="Easypaisa">Easypaisa</option>
+        <option value="JazzCash">JazzCash</option>
+      </select>
+      <label>Your Number</label>
+      <input type="text" id="depositNumber" required>
+      <label>Amount</label>
+      <input type="number" id="depositAmount" required>
+      <button type="submit">Submit Deposit</button>
+    </form>
   </div>
 
-  <div class="card">
-    <h2>Deposit</h2>
-    <p><b>Send money to:</b></p>
-    <p>EasyPaisa: <b>03319535871</b></p>
-    <p>JazzCash: <b>03159676813</b></p>
-
-    <select id="payMethod">
-      <option value="EasyPaisa">EasyPaisa</option>
-      <option value="JazzCash">JazzCash</option>
-    </select>
-    <br>
-    <input id="userNumber" type="text" placeholder="Enter your number"><br>
-    <input id="depAmount" type="number" placeholder="Enter amount"><br>
-    <button class="green-btn" onclick="deposit()">Submit Deposit</button>
-  </div>
-
-  <div class="card">
-    <h2>Withdraw</h2>
-    <input id="withAmount" type="number" placeholder="Enter amount"><br>
-    <button class="red-btn" onclick="withdraw()">Submit Withdraw</button>
+  <!-- Withdraw -->
+  <div class="section">
+    <h3>Withdraw</h3>
+    <form onsubmit="makeWithdraw(event)">
+      <label>Method</label>
+      <select id="withdrawMethod">
+        <option value="Easypaisa">Easypaisa</option>
+        <option value="JazzCash">JazzCash</option>
+      </select>
+      <label>Your Number</label>
+      <input type="text" id="withdrawNumber" required>
+      <label>Amount</label>
+      <input type="number" id="withdrawAmount" required>
+      <button type="submit">Request Withdraw</button>
+    </form>
   </div>
 
 <script>
-let balance = parseInt(localStorage.getItem("balance")||0);
-document.getElementById("balance").innerText = balance;
+  let balance = parseInt(localStorage.getItem("balance")) || 0;
+  document.getElementById("balance").innerText = balance;
 
-// Buy plan
-function buyPlan(){
-  if(localStorage.getItem("planEnd")){
-    alert("Plan already running!");
-    return;
-  }
-  if(balance >= 5000){
-    balance -= 5000;
-    localStorage.setItem("balance", balance);
-    document.getElementById("balance").innerText = balance;
-    let end = Date.now() + 24*60*60*1000;
-    localStorage.setItem("planEnd", end);
-    runTimer();
-    alert("Plan purchased successfully! Timer started.");
-  } else {
-    alert("Not enough balance!");
-  }
-}
+  let planEnd = parseInt(localStorage.getItem("planEnd")) || null;
+  if (planEnd) startTimer(planEnd);
 
-// Timer
-function runTimer(){
-  let end = localStorage.getItem("planEnd");
-  if(!end) return;
-  let timerEl = document.getElementById("timer");
-  let x = setInterval(()=>{
+  function buyPlan() {
     let now = Date.now();
-    let dist = end - now;
-    if(dist <= 0){
-      clearInterval(x);
-      balance += 833;
-      localStorage.setItem("balance", balance);
-      document.getElementById("balance").innerText = balance;
-      localStorage.removeItem("planEnd");
-      timerEl.innerText = "Profit added: 833 PKR!";
-    } else {
-      let h = Math.floor(dist/(1000*60*60));
-      let m = Math.floor((dist%(1000*60*60))/(1000*60));
-      let s = Math.floor((dist%(1000*60))/1000);
-      timerEl.innerText = `Profit in ${h}h ${m}m ${s}s`;
+    let end = now + 24 * 60 * 60 * 1000; // 24h
+    localStorage.setItem("planEnd", end);
+    startTimer(end);
+    alert("Plan started! After 24h you will get 833 PKR profit.");
+  }
+
+  function startTimer(end) {
+    function update() {
+      let now = Date.now();
+      let diff = end - now;
+      if (diff <= 0) {
+        balance += 833;
+        localStorage.setItem("balance", balance);
+        document.getElementById("balance").innerText = balance;
+        localStorage.removeItem("planEnd");
+        document.getElementById("timer").innerText = "Plan finished! Profit added.";
+        clearInterval(interval);
+        return;
+      }
+      let hours = Math.floor(diff / (1000 * 60 * 60));
+      let mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      let secs = Math.floor((diff % (1000 * 60)) / 1000);
+      document.getElementById("timer").innerText = hours + "h " + mins + "m " + secs + "s remaining";
     }
-  },1000);
-}
-runTimer();
+    update();
+    var interval = setInterval(update, 1000);
+  }
 
-// Deposit request
-function deposit(){
-  let amt = document.getElementById("depAmount").value;
-  let method = document.getElementById("payMethod").value;
-  let num = document.getElementById("userNumber").value;
+  function makeDeposit(e) {
+    e.preventDefault();
+    let method = document.getElementById("depositMethod").value;
+    let number = document.getElementById("depositNumber").value;
+    let amount = document.getElementById("depositAmount").value;
 
-  if(amt>0 && num){
-    let reqs = JSON.parse(localStorage.getItem("deposits")||"[]");
-    reqs.push({amount:amt, method:method, number:num, status:"pending"});
-    localStorage.setItem("deposits", JSON.stringify(reqs));
+    let deposits = JSON.parse(localStorage.getItem("deposits")) || [];
+    deposits.push({method, number, amount, status:"Pending"});
+    localStorage.setItem("deposits", JSON.stringify(deposits));
     alert("Deposit request sent to Admin!");
-  } else {
-    alert("Please enter all details.");
+    e.target.reset();
   }
-}
 
-// Withdraw request
-function withdraw(){
-  let amt = document.getElementById("withAmount").value;
-  if(amt>0){
-    let reqs = JSON.parse(localStorage.getItem("withdraws")||"[]");
-    reqs.push({amount:amt,status:"pending"});
-    localStorage.setItem("withdraws", JSON.stringify(reqs));
+  function makeWithdraw(e) {
+    e.preventDefault();
+    let method = document.getElementById("withdrawMethod").value;
+    let number = document.getElementById("withdrawNumber").value;
+    let amount = document.getElementById("withdrawAmount").value;
+
+    let withdraws = JSON.parse(localStorage.getItem("withdraws")) || [];
+    withdraws.push({method, number, amount, status:"Pending"});
+    localStorage.setItem("withdraws", JSON.stringify(withdraws));
     alert("Withdraw request sent to Admin!");
+    e.target.reset();
   }
-}
 </script>
-
 </body>
 </html>
