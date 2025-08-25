@@ -1,378 +1,155 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Moji — User Dashboard</title>
-<style>
-  :root{
-    --bg: radial-gradient(1200px 800px at 0% 0%, #22d3ee 0%, #2563eb 40%, #0f172a 100%);
-    --card:#ffffff;
-    --muted:#6b7280;
-    --shadow: 0 12px 34px rgba(2,6,23,.22);
-    --accent:#22d3ee; /* cyan */
-    --accent2:#ef4444; /* red */
-    --accent3:#f59e0b; /* amber */
-    --accent4:#10b981; /* green */
-    --radius:18px;
-  }
-  *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
-  body{margin:0;min-height:100vh;background:var(--bg);color:#0b1220;display:flex;align-items:center;justify-content:center;padding:26px}
-  .app{width:100%;max-width:1100px;background:linear-gradient(180deg,#ffffff, #fbfdff);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;background:linear-gradient(180deg,#f8fafc,#eef2ff)}
-  .brand{display:flex;align-items:center;gap:10px}
-  .logo{width:46px;height:46px;border-radius:12px;background:#06b6d4;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 6px 16px rgba(14,165,233,.35)}
-  .nav{display:flex;gap:8px}
-  .tab{border:0;background:#111827;color:#fff;padding:10px 14px;border-radius:12px;cursor:pointer}
-  .tab.ghost{background:transparent;color:#111827;border:1px solid rgba(0,0,0,.08)}
-  main{display:grid;grid-template-columns: 520px 1fr;gap:14px;padding:16px}
-  @media (max-width:980px){main{grid-template-columns:1fr}}
-  .card{background:var(--card);border-radius:16px;box-shadow:0 8px 24px rgba(12,15,30,.06);padding:16px}
-  .muted{color:var(--muted)}
-  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-
-  /* --- Circle (Gol) --- */
-  .circle-wrap{display:flex;align-items:center;justify-content:center}
-  .circle{
-    --size: 300px;
-    width:var(--size);height:var(--size);
-    border-radius:50%;
-    background:
-      conic-gradient(var(--accent) var(--deg,0deg), #e5e7eb 0deg),
-      radial-gradient(circle at 50% 50%, #ffffff 60%, #f1f5f9 61%);
-    box-shadow: inset 0 0 40px rgba(2,6,23,.08), 0 20px 40px rgba(2,6,23,.18);
-    display:flex;align-items:center;justify-content:center;position:relative;
-  }
-  .circle .inner{width:72%;height:72%;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:8px}
-  .buyBtn{border:0;background:linear-gradient(90deg,#06b6d4,#10b981,#f59e0b,#ef4444,#3b82f6);background-size:400% 100%;animation: hue 7s linear infinite;color:#fff;font-weight:900;padding:12px 20px;border-radius:999px;cursor:pointer;box-shadow:0 10px 24px rgba(2,6,23,.18)}
-  @keyframes hue{0%{background-position:0 0}100%{background-position:100% 0}}
-  .count{font-variant-numeric:tabular-nums;font-weight:800}
-  .label{font-size:13px;color:#334155}
-
-  /* Balance card */
-  .big{font-size:30px;font-weight:900}
-  .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:#ecfeff;border:1px solid #cffafe;color:#0e7490;font-weight:700}
-  .btn{border:0;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
-  .btn.green{background:#10b981;color:#fff}
-  .btn.gray{background:#111827;color:#fff}
-  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,.08)}
-
-  /* Withdraw view */
-  .hidden{display:none}
-  .method{display:flex;gap:10px;flex-wrap:wrap}
-  .method .opt{border:1px solid rgba(0,0,0,.08);padding:10px 12px;border-radius:12px;cursor:pointer}
-  .method .opt.active{background:#0ea5a9;color:#fff;border-color:transparent}
-  .field{display:flex;flex-direction:column;gap:6px}
-  .input{
-    border:2px solid transparent;
-    background: linear-gradient(#fff, #fff) padding-box,
-               linear-gradient(90deg,#06b6d4,#10b981,#f59e0b,#ef4444,#3b82f6) border-box;
-    border-radius:12px;padding:12px 12px;font-size:16px;outline:none
-  }
-  .input::placeholder{background:linear-gradient(90deg,#06b6d4,#10b981,#f59e0b,#ef4444,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .help{font-size:12px;color:#64748b}
-  .success{padding:10px 12px;border-radius:12px;background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46}
-  .error{padding:10px 12px;border-radius:12px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
-
-  footer{padding:10px 16px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
-  a.link{color:#0ea5a9;text-decoration:none}
-</style>
+  <meta charset="UTF-8">
+  <title>User Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+    }
+    .circle {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: #ff5722;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .withdraw-box {
+      margin-top: 20px;
+      background: #ffffff22;
+      padding: 15px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-  <div class="app" id="app">
-    <header>
-      <div class="brand">
-        <div class="logo">M</div>
-        <div>
-          <div style="font-weight:900;font-size:18px">Moji — Circle Plan</div>
-          <div class="muted" style="font-size:12px">24 گھنٹے بعد بیلنس خود بخود +833</div>
-        </div>
-      </div>
-      <div class="nav">
-        <button class="tab" id="tab-dashboard">Dashboard</button>
-        <button class="tab ghost" id="tab-withdraw">Withdraw</button>
-      </div>
-    </header>
+  <h1>User Panel</h1>
 
-    <!-- DASHBOARD VIEW -->
-    <main id="view-dashboard">
-      <section class="card circle-wrap">
-        <div class="circle" id="circle" style="--deg:0deg">
-          <div class="inner">
-            <div class="count" id="count">00:00:00</div>
-            <div class="label" id="label">Timer is idle</div>
-            <button class="buyBtn" id="buyBtn">BUY NOW</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="row" style="justify-content:space-between">
-          <div>
-            <div class="muted">Current Balance</div>
-            <div class="big" id="balance">0</div>
-          </div>
-          <div class="row">
-            <span class="chip">+833 each 24h</span>
-            <button class="btn ghost" id="resetBtn" title="Testing only">Reset</button>
-            <a class="btn gray" href="admin.html" title="Open Admin (same storage)">Open Admin ▶</a>
-          </div>
-        </div>
-        <div class="muted" style="margin-top:8px;font-size:13px">نوٹ: یہ ڈیمو فرنٹ اینڈ ہے۔ اصل پیمنٹ/سرور شامل نہیں۔</div>
-      </section>
-
-      <section class="card">
-        <div style="font-weight:800;font-size:18px">My Withdraw Requests</div>
-        <div id="reqList" class="muted" style="font-size:13px">No requests yet.</div>
-      </section>
-    </main>
-
-    <!-- WITHDRAW VIEW -->
-    <main id="view-withdraw" class="hidden">
-      <section class="card">
-        <div style="font-weight:800;font-size:18px">Withdraw</div>
-        <div class="muted" style="font-size:13px">ایزی پیسہ یا جاز کیش منتخب کریں — نمبر درج کریں — ریکویسٹ ڈالیں</div>
-
-        <div style="height:10px"></div>
-        <div class="method" id="method">
-          <div class="opt active" data-v="easypaisa">EasyPaisa</div>
-          <div class="opt" data-v="jazzcash">JazzCash</div>
-        </div>
-
-        <div style="height:12px"></div>
-        <div class="row" style="align-items:flex-start">
-          <div class="field" style="flex:1 1 260px">
-            <label>Account Number</label>
-            <input class="input" id="acc" placeholder="03XX‑XXXXXXX" />
-            <div class="help">Multiple‑color border & placeholder as requested.</div>
-          </div>
-          <div class="field" style="width:180px">
-            <label>Amount</label>
-            <input class="input" id="amt" placeholder="e.g. 1500" inputmode="numeric" />
-          </div>
-        </div>
-
-        <div style="height:12px"></div>
-        <div class="row">
-          <button class="btn green" id="reqBtn">Submit Withdraw</button>
-          <button class="btn ghost" id="backBtn">◀ Back to Dashboard</button>
-        </div>
-
-        <div style="height:12px"></div>
-        <div id="out"></div>
-      </section>
-    </main>
-
-    <footer>
-      <div class="muted" style="font-size:12px">Version 1.0 • Local storage • Works offline</div>
-      <div class="row">
-        <button class="btn ghost" id="exportBtn">Export Data</button>
-        <button class="btn ghost" id="importBtn">Import Data</button>
-      </div>
-    </footer>
+  <div class="circle">
+    Balance: <span id="balance">1686</span> PKR
   </div>
 
-<script>
-  // ====== CONFIG ======
-  const CYCLE_MS = 24 * 60 * 60 * 1000; // 24 hours
-  const REWARD = 833;                    // balance added each 24h
+  <button id="buyNowBtn">Buy Now</button>
 
-  // ====== SHARED STORAGE KEYS ======
-  const STATE_KEY = 'moji_user_state_v1';      // timer + balance
-  const REQUESTS_KEY = 'moji_requests_v1';     // all withdraw requests
+  <div>
+    <h2>Timer: <span id="timer">Not Started</span></h2>
+  </div>
 
-  // ====== STATE (persisted) ======
-  let state = { startAt:null, creditedCycles:0, balance:0 };
-  function saveState(){ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
-  function loadState(){
-    const raw = localStorage.getItem(STATE_KEY);
-    if(raw){ try { state = JSON.parse(raw); } catch(e){} }
-  }
+  <div class="withdraw-box">
+    <h3>Withdraw Request</h3>
+    <select id="method">
+      <option value="easypaisa">Easypaisa</option>
+      <option value="jazzcash">JazzCash</option>
+    </select>
+    <input type="text" id="number" placeholder="Enter Number">
+    <button id="withdrawBtn">Withdraw</button>
+    <p id="withdrawStatus"></p>
+  </div>
 
-  function loadRequests(){
-    const raw = localStorage.getItem(REQUESTS_KEY);
-    try { return raw ? JSON.parse(raw) : []; } catch(e){ return []; }
-  }
-  function saveRequests(list){ localStorage.setItem(REQUESTS_KEY, JSON.stringify(list)); }
+  <script>
+    let balance = parseInt(localStorage.getItem("balance")) || 1686;
+    let startTime = localStorage.getItem("startTime");
+    let withdrawRequests = JSON.parse(localStorage.getItem("withdrawRequests")) || [];
+    let approvedRequest = JSON.parse(localStorage.getItem("approvedRequest")) || null;
 
-  // ====== ELEMENTS ======
-  const el = {
-    circle: document.getElementById('circle'),
-    count: document.getElementById('count'),
-    label: document.getElementById('label'),
-    buyBtn: document.getElementById('buyBtn'),
-    balance: document.getElementById('balance'),
-    resetBtn: document.getElementById('resetBtn'),
-    viewDash: document.getElementById('view-dashboard'),
-    viewWdr: document.getElementById('view-withdraw'),
-    tabDash: document.getElementById('tab-dashboard'),
-    tabWdr: document.getElementById('tab-withdraw'),
-    method: document.getElementById('method'),
-    acc: document.getElementById('acc'),
-    amt: document.getElementById('amt'),
-    reqBtn: document.getElementById('reqBtn'),
-    out: document.getElementById('out'),
-    reqList: document.getElementById('reqList'),
-    backBtn: document.getElementById('backBtn'),
-    exportBtn: document.getElementById('exportBtn'),
-    importBtn: document.getElementById('importBtn')
-  };
+    document.getElementById("balance").innerText = balance;
 
-  // ====== NAV ======
-  function go(view){
-    const dash = view === 'dash';
-    el.viewDash.classList.toggle('hidden', !dash);
-    el.viewWdr.classList.toggle('hidden', dash);
-    el.tabDash.classList.toggle('ghost', !dash);
-    el.tabWdr.classList.toggle('ghost', dash);
-  }
-  el.tabDash.onclick = () => go('dash');
-  el.tabWdr.onclick = () => go('wdr');
-  el.backBtn.onclick = () => go('dash');
+    function updateTimer() {
+      if (startTime) {
+        let now = Date.now();
+        let diff = now - startTime;
+        let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById("timer").innerText = 
+          `${hours}h ${minutes}m ${seconds}s`;
 
-  // ====== TIMER / CREDIT LOGIC ======
-  let tickHandle = null;
-
-  function startTimer(){
-    if(state.startAt) return; // already started
-    state.startAt = Date.now();
-    saveState();
-    updateUI();
-  }
-
-  function resetAll(){
-    state = { startAt:null, creditedCycles:0, balance:0 };
-    saveState();
-    updateUI();
-  }
-
-  function format(ms){
-    const total = Math.max(0, Math.floor(ms/1000));
-    const h = String(Math.floor(total/3600)).padStart(2,'0');
-    const m = String(Math.floor((total%3600)/60)).padStart(2,'0');
-    const s = String(total%60).padStart(2,'0');
-    return `${h}:${m}:${s}`;
-  }
-
-  function updateTimer(){
-    if(!state.startAt){
-      el.count.textContent = '00:00:00';
-      el.label.textContent = 'Timer is idle';
-      el.circle.style.setProperty('--deg', '0deg');
-      return;
+        if (diff >= 24 * 60 * 60 * 1000) {
+          balance += 833;
+          localStorage.setItem("balance", balance);
+          document.getElementById("balance").innerText = balance;
+          startTime = Date.now();
+          localStorage.setItem("startTime", startTime);
+        }
+      }
     }
-    const elapsed = Date.now() - state.startAt;
-    // Credit cycles passed
-    const cycles = Math.floor(elapsed / CYCLE_MS);
-    if(cycles > state.creditedCycles){
-      const newly = cycles - state.creditedCycles;
-      state.creditedCycles = cycles;
-      state.balance += newly * REWARD;
-      saveState();
-    }
-    // Remaining to next credit
-    const intoCycle = elapsed % CYCLE_MS;
-    const remain = CYCLE_MS - intoCycle;
-    el.count.textContent = format(remain);
-    el.label.textContent = `Next +${REWARD} in`;
-    const deg = (intoCycle / CYCLE_MS) * 360;
-    el.circle.style.setProperty('--deg', deg + 'deg');
-  }
+    setInterval(updateTimer, 1000);
 
-  function updateUI(){
-    el.balance.textContent = String(state.balance);
-    el.buyBtn.style.display = state.startAt ? 'none' : 'inline-flex';
-    updateTimer();
-    renderReqs();
-  }
-
-  // ====== WITHDRAW UI (USER) ======
-  el.method.addEventListener('click', (e)=>{
-    const opt = e.target.closest('.opt');
-    if(!opt) return;
-    [...el.method.children].forEach(x=>x.classList.remove('active'));
-    opt.classList.add('active');
-  });
-
-  el.reqBtn.onclick = () => {
-    const method = el.method.querySelector('.opt.active')?.dataset.v || 'easypaisa';
-    const acc = el.acc.value.trim();
-    const amt = parseInt(el.amt.value, 10);
-    el.out.innerHTML = '';
-
-    if(!acc || String(acc).length < 7){
-      el.out.innerHTML = '<div class="error">Enter a valid account number.</div>';
-      return;
-    }
-    if(!amt || amt <= 0){
-      el.out.innerHTML = '<div class="error">Enter a valid amount.</div>';
-      return;
-    }
-    if(amt > state.balance){
-      el.out.innerHTML = '<div class="error">Insufficient balance.</div>';
-      return;
-    }
-
-    // Deduct and store request (shared storage with admin.html)
-    state.balance -= amt;
-    saveState();
-
-    const list = loadRequests();
-    const req = { id: 'REQ' + Date.now(), method, acc, amt, at: new Date().toISOString(), status:'Pending' };
-    list.unshift(req);
-    saveRequests(list);
-
-    el.out.innerHTML = '<div class="success">Withdraw request submitted (Pending). Admin will approve/reject.</div>';
-    el.acc.value = ''; el.amt.value = '';
-    renderReqs();
-    updateUI();
-  };
-
-  function renderReqs(){
-    const list = loadRequests();
-    if(!list.length){ el.reqList.textContent = 'No requests yet.'; return; }
-    el.reqList.innerHTML = list.map(r=>`
-      <div style="padding:8px 0;border-bottom:1px dashed #e5e7eb">
-        <div><strong>${r.id}</strong> • ${r.method.toUpperCase()} • Rs ${r.amt} • <span style="font-weight:700">${r.status}</span></div>
-        <div class="muted" style="font-size:12px">${r.acc} • ${new Date(r.at).toLocaleString()}</div>
-      </div>`).join('');
-  }
-
-  // ====== DATA IMPORT/EXPORT (JSON) ======
-  el.exportBtn.onclick = () => {
-    const data = { state, requests: loadRequests() };
-    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'moji-user-data.json'; a.click();
-    URL.revokeObjectURL(url);
-  };
-  el.importBtn.onclick = async () => {
-    const inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = 'application/json';
-    inp.onchange = () => {
-      const file = inp.files?.[0]; if(!file) return;
-      const fr = new FileReader();
-      fr.onload = () => { try{
-        const obj = JSON.parse(fr.result);
-        if(obj.state){ state = obj.state; saveState(); }
-        if(Array.isArray(obj.requests)) saveRequests(obj.requests);
-        updateUI();
-      }catch(e){ alert('Invalid file'); } };
-      fr.readAsText(file);
+    document.getElementById("buyNowBtn").onclick = function() {
+      if (!startTime) {
+        startTime = Date.now();
+        localStorage.setItem("startTime", startTime);
+      }
     };
-    inp.click();
-  };
 
-  // ====== HOOKS ======
-  document.getElementById('buyBtn').onclick = startTimer;
-  document.getElementById('resetBtn').onclick = resetAll;
+    document.getElementById("withdrawBtn").onclick = function() {
+      if (balance > 0) {
+        let method = document.getElementById("method").value;
+        let number = document.getElementById("number").value;
+        if (number === "") {
+          alert("Enter number first!");
+          return;
+        }
 
-  // bootstrap
-  loadState();
-  updateUI();
-  setInterval(updateTimer, 1000);
-  go('dash');
-</script>
+        let request = {
+          id: Date.now(),
+          method: method,
+          number: number,
+          amount: balance,
+          status: "Pending"
+        };
+
+        withdrawRequests.push(request);
+        localStorage.setItem("withdrawRequests", JSON.stringify(withdrawRequests));
+
+        // Balance zero on request
+        balance = 0;
+        localStorage.setItem("balance", balance);
+        document.getElementById("balance").innerText = balance;
+
+        document.getElementById("withdrawStatus").innerText = 
+          "Withdraw request sent! Waiting for admin approval.";
+      }
+    };
+
+    // Handle approved or rejected requests
+    if (approvedRequest) {
+      if (approvedRequest.status === "Approved") {
+        document.getElementById("withdrawStatus").innerText = 
+          "Withdraw Approved. Amount sent!";
+        balance = 0;
+        localStorage.setItem("balance", balance);
+        document.getElementById("balance").innerText = balance;
+      } else if (approvedRequest.status === "Rejected") {
+        document.getElementById("withdrawStatus").innerText = 
+          "Withdraw Rejected. Balance Restored!";
+        balance = 1686;
+        localStorage.setItem("balance", balance);
+        document.getElementById("balance").innerText = balance;
+      }
+      localStorage.removeItem("approvedRequest");
+    }
+  </script>
 </body>
 </html>
