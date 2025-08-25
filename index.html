@@ -6,150 +6,170 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffdd00, #ff9900, #ff6600);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       text-align: center;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: white;
+      color: #333;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    .balance {
+      font-size: 26px;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #222;
     }
     .circle {
       width: 200px;
       height: 200px;
       border-radius: 50%;
-      background: #ff5722;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: gold;
       margin: 20px auto;
-      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    }
+    .circle button {
+      background: #ff3300;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 18px;
+      cursor: pointer;
       font-weight: bold;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
+    .withdraw {
+      background: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .withdraw input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .withdraw button {
+      background: #28a745;
       border: none;
-      border-radius: 10px;
-      background: #4CAF50;
       color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
       cursor: pointer;
-      margin: 10px;
+      font-weight: bold;
     }
-    button:hover {
-      background: #45a049;
-    }
-    .withdraw-box {
-      margin-top: 20px;
-      background: #ffffff22;
-      padding: 15px;
-      border-radius: 10px;
+    .status {
+      margin-top: 15px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>User Panel</h1>
+  <h2>User Panel</h2>
+  <div class="balance">Balance: <span id="balance">1686</span> PKR</div>
 
   <div class="circle">
-    Balance: <span id="balance">1686</span> PKR
+    <button onclick="startPlan()">Buy Now</button>
   </div>
 
-  <button id="buyNowBtn">Buy Now</button>
-
-  <div>
-    <h2>Timer: <span id="timer">Not Started</span></h2>
-  </div>
-
-  <div class="withdraw-box">
+  <div class="withdraw">
     <h3>Withdraw Request</h3>
-    <select id="method">
-      <option value="easypaisa">Easypaisa</option>
-      <option value="jazzcash">JazzCash</option>
-    </select>
-    <input type="text" id="number" placeholder="Enter Number">
-    <button id="withdrawBtn">Withdraw</button>
-    <p id="withdrawStatus"></p>
+    <input type="text" id="mobileNumber" placeholder="Enter Mobile Number"><br>
+    <input type="number" id="withdrawAmount" placeholder="Enter Amount"><br>
+    <button onclick="requestWithdraw()">Request Withdraw</button>
+    <div class="status" id="withdrawStatus"></div>
   </div>
 
   <script>
     let balance = parseInt(localStorage.getItem("balance")) || 1686;
-    let startTime = localStorage.getItem("startTime");
-    let withdrawRequests = JSON.parse(localStorage.getItem("withdrawRequests")) || [];
-    let approvedRequest = JSON.parse(localStorage.getItem("approvedRequest")) || null;
+    let lastUpdate = localStorage.getItem("lastUpdate");
+    let planStarted = localStorage.getItem("planStarted") === "true";
 
     document.getElementById("balance").innerText = balance;
 
-    function updateTimer() {
-      if (startTime) {
-        let now = Date.now();
-        let diff = now - startTime;
-        let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        let seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        document.getElementById("timer").innerText = 
-          `${hours}h ${minutes}m ${seconds}s`;
+    function startPlan() {
+      if (!planStarted) {
+        planStarted = true;
+        localStorage.setItem("planStarted", "true");
+        lastUpdate = Date.now();
+        localStorage.setItem("lastUpdate", lastUpdate);
+        alert("Plan Started! Balance will increase by 833 every 24 hours.");
+      } else {
+        alert("Plan already running.");
+      }
+    }
 
-        if (diff >= 24 * 60 * 60 * 1000) {
-          balance += 833;
+    function updateBalance() {
+      if (planStarted && lastUpdate) {
+        let now = Date.now();
+        let hours = (now - lastUpdate) / (1000 * 60 * 60);
+        if (hours >= 24) {
+          let daysPassed = Math.floor(hours / 24);
+          balance += 833 * daysPassed;
+          lastUpdate = Date.now();
+          localStorage.setItem("lastUpdate", lastUpdate);
+          localStorage.setItem("balance", balance);
+        }
+      }
+      document.getElementById("balance").innerText = balance;
+    }
+
+    function requestWithdraw() {
+      let mobile = document.getElementById("mobileNumber").value;
+      let amount = parseInt(document.getElementById("withdrawAmount").value);
+
+      if (!mobile || !amount) {
+        alert("Please enter mobile number and amount.");
+        return;
+      }
+
+      if (amount > balance) {
+        alert("Insufficient Balance!");
+        return;
+      }
+
+      balance = 0;
+      localStorage.setItem("balance", balance);
+      document.getElementById("balance").innerText = balance;
+
+      localStorage.setItem("withdrawRequest", JSON.stringify({
+        mobile: mobile,
+        amount: amount,
+        status: "Pending"
+      }));
+
+      document.getElementById("withdrawStatus").innerText = "Withdraw Request Sent. Status: Pending";
+    }
+
+    function checkWithdrawStatus() {
+      let request = JSON.parse(localStorage.getItem("withdrawRequest"));
+      if (request) {
+        document.getElementById("withdrawStatus").innerText = "Withdraw Status: " + request.status;
+        if (request.status === "Rejected") {
+          balance = 1686;
           localStorage.setItem("balance", balance);
           document.getElementById("balance").innerText = balance;
-          startTime = Date.now();
-          localStorage.setItem("startTime", startTime);
+          localStorage.removeItem("withdrawRequest");
+        } else if (request.status === "Approved") {
+          localStorage.removeItem("withdrawRequest");
         }
       }
     }
-    setInterval(updateTimer, 1000);
 
-    document.getElementById("buyNowBtn").onclick = function() {
-      if (!startTime) {
-        startTime = Date.now();
-        localStorage.setItem("startTime", startTime);
-      }
-    };
-
-    document.getElementById("withdrawBtn").onclick = function() {
-      if (balance > 0) {
-        let method = document.getElementById("method").value;
-        let number = document.getElementById("number").value;
-        if (number === "") {
-          alert("Enter number first!");
-          return;
-        }
-
-        let request = {
-          id: Date.now(),
-          method: method,
-          number: number,
-          amount: balance,
-          status: "Pending"
-        };
-
-        withdrawRequests.push(request);
-        localStorage.setItem("withdrawRequests", JSON.stringify(withdrawRequests));
-
-        // Balance zero on request
-        balance = 0;
-        localStorage.setItem("balance", balance);
-        document.getElementById("balance").innerText = balance;
-
-        document.getElementById("withdrawStatus").innerText = 
-          "Withdraw request sent! Waiting for admin approval.";
-      }
-    };
-
-    // Handle approved or rejected requests
-    if (approvedRequest) {
-      if (approvedRequest.status === "Approved") {
-        document.getElementById("withdrawStatus").innerText = 
-          "Withdraw Approved. Amount sent!";
-        balance = 0;
-        localStorage.setItem("balance", balance);
-        document.getElementById("balance").innerText = balance;
-      } else if (approvedRequest.status === "Rejected") {
-        document.getElementById("withdrawStatus").innerText = 
-          "Withdraw Rejected. Balance Restored!";
-        balance = 1686;
-        localStorage.setItem("balance", balance);
-        document.getElementById("balance").innerText = balance;
-      }
-      localStorage.removeItem("approvedRequest");
-    }
+    setInterval(updateBalance, 1000 * 60); 
+    updateBalance();
+    checkWithdrawStatus();
   </script>
 </body>
 </html>
