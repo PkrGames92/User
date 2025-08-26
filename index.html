@@ -1,175 +1,298 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>User Panel</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #ffdd00, #ff9900, #ff6600);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      text-align: center;
-      color: #333;
-    }
-    @keyframes gradientBG {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-    .balance {
-      font-size: 26px;
-      font-weight: bold;
-      margin: 20px 0;
-      color: #222;
-    }
-    .circle {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: gold;
-      margin: 20px auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 25px rgba(0,0,0,0.3);
-    }
-    .circle button {
-      background: #ff3300;
-      border: none;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 25px;
-      font-size: 18px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .withdraw {
-      background: #fff;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 12px;
-      width: 300px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    }
-    .withdraw input {
-      width: 90%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .withdraw button {
-      background: #28a745;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .status {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Moji — User Panel</title>
+<style>
+  :root{
+    --bg1: linear-gradient(135deg,#ff9a9e 0%,#fad0c4 50%,#fbc2eb 100%);
+    --card:#ffffff;
+    --muted:#6b7280;
+    --accent1:#ffb703; /* gold */
+    --accent2:#fb8500; /* orange */
+    --accent3:#219ebc; /* teal */
+    --accent4:#2a9d8f; /* green */
+    --radius:16px;
+  }
+  *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system,"Segoe UI",Roboto,Arial}
+  body{margin:0;min-height:100vh;background:var(--bg1);display:flex;align-items:center;justify-content:center;padding:28px;color:#0b1220}
+  .app{width:100%;max-width:980px;background:linear-gradient(180deg,#fff,#fbfdff);border-radius:20px;box-shadow:0 18px 50px rgba(2,6,23,.12);overflow:hidden}
+  header{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid #eef2ff}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+  h1{margin:0;font-size:18px}
+  .muted{color:var(--muted);font-size:13px}
+  main{display:grid;grid-template-columns:360px 1fr;gap:18px;padding:22px}
+  @media (max-width:920px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(2,6,23,.04)}
+  /* balance */
+  .balance-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .balance-box{padding:14px;border-radius:12px;background:linear-gradient(90deg,#fff8e1,#fff5d6);display:flex;flex-direction:column;gap:6px;min-width:200px}
+  .balance-amount{font-size:26px;font-weight:900}
+  .chip{padding:6px 10px;border-radius:999px;background:#ecfeff;border:1px solid #cffafe;color:#064e63;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+  /* circle */
+  .center{display:flex;flex-direction:column;align-items:center;gap:16px;justify-content:center}
+  .gold-circle{width:320px;height:320px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #fff7d6 0%, #ffd54a 40%, #ffb703 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 50px rgba(0,0,0,0.12);position:relative}
+  .buy-btn{background:linear-gradient(90deg,#fb8500,#ffb703);border-radius:999px;padding:12px 28px;border:0;color:white;font-weight:900;cursor:pointer;font-size:18px;box-shadow:0 10px 30px rgba(2,6,23,.12)}
+  .timer{font-weight:800;font-size:18px}
+  .note{font-size:13px;color:var(--muted)}
+  /* withdraw form */
+  .form-row{display:flex;flex-direction:column;gap:10px}
+  .input{padding:10px;border-radius:10px;border:1px solid #e6e6e6;font-size:15px;width:100%}
+  .btn{padding:10px;border-radius:12px;border:0;font-weight:800;cursor:pointer}
+  .btn-primary{background:linear-gradient(90deg,var(--accent3),var(--accent4));color:white}
+  .btn-ghost{background:transparent;border:1px solid rgba(0,0,0,.06)}
+  .status{margin-top:10px;font-weight:700}
+  .req-list{max-height:260px;overflow:auto;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+  .req-item{padding:10px;border-radius:10px;border:1px solid #f1f5f9;background:linear-gradient(180deg,#fff,#fbfdff);display:flex;justify-content:space-between;align-items:center;gap:10px}
+</style>
 </head>
 <body>
-  <h2>User Panel</h2>
-  <div class="balance">Balance: <span id="balance">1686</span> PKR</div>
+  <div class="app" role="application" aria-label="Moji User Panel">
+    <header>
+      <div class="brand">
+        <div class="logo">M</div>
+        <div>
+          <h1>Moji — User Panel</h1>
+          <div class="muted">Plan: +833 PKR every 24h • Withdraw min 1000</div>
+        </div>
+      </div>
+      <div class="muted">LocalStorage powered</div>
+    </header>
 
-  <div class="circle">
-    <button onclick="startPlan()">Buy Now</button>
+    <main>
+      <!-- left: balance + withdraw -->
+      <div class="card">
+        <div class="balance-row">
+          <div class="balance-box">
+            <div class="muted">Current Balance</div>
+            <div class="balance-amount" id="balanceAmount">0</div>
+            <div class="muted">PKR</div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <div class="chip" id="planChip">Plan: Inactive</div>
+            <button class="btn btn-ghost" id="openAdminBtn" title="Open admin.html">Open Admin</button>
+          </div>
+        </div>
+
+        <hr style="margin:14px 0">
+
+        <div>
+          <h3 style="margin:0 0 8px 0">Withdraw</h3>
+          <div class="note" id="minNote">Minimum withdraw: 1000 PKR</div>
+
+          <div style="height:10px"></div>
+          <div class="form-row">
+            <input id="mobileInput" class="input" placeholder="Enter mobile number (e.g. 03XXXXXXXXX)" />
+            <input id="amountInput" class="input" type="number" placeholder="Enter withdraw amount (PKR)" />
+            <button id="withdrawBtn" class="btn btn-primary">Request Withdraw</button>
+            <div id="withdrawStatus" class="status"></div>
+          </div>
+
+          <div style="height:12px"></div>
+          <div>
+            <h4 style="margin:6px 0">Your Requests</h4>
+            <div class="req-list" id="reqList">
+              <!-- requests appear here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: big circle + timer -->
+      <div class="card center">
+        <div class="gold-circle" aria-hidden="false">
+          <div style="text-align:center">
+            <div class="timer" id="timerText">Not started</div>
+            <div style="height:12px"></div>
+            <button class="buy-btn" id="buyNowBtn">BUY NOW</button>
+            <div style="height:12px"></div>
+            <div class="note" id="nextNote">Next +833 in: —</div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
-  <div class="withdraw">
-    <h3>Withdraw Request</h3>
-    <input type="text" id="mobileNumber" placeholder="Enter Mobile Number"><br>
-    <input type="number" id="withdrawAmount" placeholder="Enter Amount"><br>
-    <button onclick="requestWithdraw()">Request Withdraw</button>
-    <div class="status" id="withdrawStatus"></div>
-  </div>
+<script>
+/*
+  Keys used in localStorage:
+   - moji_state : { balance:Number, planStarted:Boolean, lastTs:Number }
+   - moji_requests : Array of { id:Number, mobile:String, amount:Number, prevBalance:Number, date:String, status:String }
+*/
+(function(){
+  // constants
+  const REWARD = 833;
+  const CYCLE_MS = 24*60*60*1000;
+  const MIN_WITHDRAW = 1000;
 
-  <script>
-    let balance = parseInt(localStorage.getItem("balance")) || 1686;
-    let lastUpdate = localStorage.getItem("lastUpdate");
-    let planStarted = localStorage.getItem("planStarted") === "true";
+  // helpers
+  function saveState(){ localStorage.setItem('moji_state', JSON.stringify(state)); }
+  function loadState(){ try { const s = JSON.parse(localStorage.getItem('moji_state')); if(s) Object.assign(state,s); } catch(e){} }
+  function saveRequests(){ localStorage.setItem('moji_requests', JSON.stringify(requests)); }
+  function loadRequests(){ try { const r = JSON.parse(localStorage.getItem('moji_requests')); if(Array.isArray(r)) requests = r; } catch(e){} }
 
-    document.getElementById("balance").innerText = balance;
+  // initial state
+  let state = { balance: 0, planStarted:false, lastTs: null };
+  let requests = [];
 
-    function startPlan() {
-      if (!planStarted) {
-        planStarted = true;
-        localStorage.setItem("planStarted", "true");
-        lastUpdate = Date.now();
-        localStorage.setItem("lastUpdate", lastUpdate);
-        alert("Plan Started! Balance will increase by 833 every 24 hours.");
-      } else {
-        alert("Plan already running.");
-      }
+  // DOM
+  const balanceEl = document.getElementById('balanceAmount');
+  const planChip = document.getElementById('planChip');
+  const buyNowBtn = document.getElementById('buyNowBtn');
+  const timerText = document.getElementById('timerText');
+  const nextNote = document.getElementById('nextNote');
+  const withdrawBtn = document.getElementById('withdrawBtn');
+  const mobileInput = document.getElementById('mobileInput');
+  const amountInput = document.getElementById('amountInput');
+  const withdrawStatus = document.getElementById('withdrawStatus');
+  const reqList = document.getElementById('reqList');
+  const openAdminBtn = document.getElementById('openAdminBtn');
+
+  // load persisted
+  loadState();
+  loadRequests();
+
+  // update UI
+  function renderState(){
+    balanceEl.textContent = state.balance;
+    planChip.textContent = state.planStarted ? 'Plan: Active' : 'Plan: Inactive';
+    if(!state.planStarted){
+      timerText.textContent = 'Not started';
+      nextNote.textContent = 'Next +833 in: —';
     }
+  }
 
-    function updateBalance() {
-      if (planStarted && lastUpdate) {
-        let now = Date.now();
-        let hours = (now - lastUpdate) / (1000 * 60 * 60);
-        if (hours >= 24) {
-          let daysPassed = Math.floor(hours / 24);
-          balance += 833 * daysPassed;
-          lastUpdate = Date.now();
-          localStorage.setItem("lastUpdate", lastUpdate);
-          localStorage.setItem("balance", balance);
-        }
-      }
-      document.getElementById("balance").innerText = balance;
+  function renderRequests(){
+    reqList.innerHTML = '';
+    if(!requests.length){
+      reqList.innerHTML = '<div class="muted">No requests yet.</div>';
+      return;
     }
+    requests.forEach(r=>{
+      const div = document.createElement('div');
+      div.className = 'req-item';
+      div.innerHTML = `<div style="flex:1">
+          <div><strong>${r.amount} PKR</strong> • ${r.mobile}</div>
+          <div class="muted" style="font-size:12px">${r.date}</div>
+        </div>
+        <div style="min-width:120px;text-align:right">
+          <div style="font-weight:800">${r.status}</div>
+        </div>`;
+      reqList.appendChild(div);
+    });
+  }
 
-    function requestWithdraw() {
-      let mobile = document.getElementById("mobileNumber").value;
-      let amount = parseInt(document.getElementById("withdrawAmount").value);
-
-      if (!mobile || !amount) {
-        alert("Please enter mobile number and amount.");
-        return;
-      }
-
-      if (amount > balance) {
-        alert("Insufficient Balance!");
-        return;
-      }
-
-      balance = 0;
-      localStorage.setItem("balance", balance);
-      document.getElementById("balance").innerText = balance;
-
-      localStorage.setItem("withdrawRequest", JSON.stringify({
-        mobile: mobile,
-        amount: amount,
-        status: "Pending"
-      }));
-
-      document.getElementById("withdrawStatus").innerText = "Withdraw Request Sent. Status: Pending";
+  // timer / credit logic
+  function applyCycles(){
+    if(!state.planStarted || !state.lastTs) return;
+    const now = Date.now();
+    // number of full cycles passed since lastTs
+    const passed = Math.floor((now - state.lastTs) / CYCLE_MS);
+    if(passed > 0){
+      // careful add: add REWARD * passed
+      state.balance = Number(state.balance) + REWARD * passed;
+      // advance lastTs by passed cycles
+      state.lastTs = state.lastTs + passed * CYCLE_MS;
+      saveState();
     }
+  }
 
-    function checkWithdrawStatus() {
-      let request = JSON.parse(localStorage.getItem("withdrawRequest"));
-      if (request) {
-        document.getElementById("withdrawStatus").innerText = "Withdraw Status: " + request.status;
-        if (request.status === "Rejected") {
-          balance = 1686;
-          localStorage.setItem("balance", balance);
-          document.getElementById("balance").innerText = balance;
-          localStorage.removeItem("withdrawRequest");
-        } else if (request.status === "Approved") {
-          localStorage.removeItem("withdrawRequest");
-        }
-      }
+  function getRemainingToNext(){
+    if(!state.planStarted || !state.lastTs) return null;
+    const now = Date.now();
+    const into = (now - state.lastTs) % CYCLE_MS;
+    return CYCLE_MS - into;
+  }
+
+  function formatTime(ms){
+    if(ms <= 0) return '00:00:00';
+    const total = Math.floor(ms/1000);
+    const h = String(Math.floor(total/3600)).padStart(2,'0');
+    const m = String(Math.floor((total%3600)/60)).padStart(2,'0');
+    const s = String(total%60).padStart(2,'0');
+    return `${h}:${m}:${s}`;
+  }
+
+  function tick(){
+    applyCycles();
+    renderState();
+    renderRequests();
+    const rem = getRemainingToNext();
+    if(rem === null){
+      timerText.textContent = 'Not started';
+      nextNote.textContent = 'Next +833 in: —';
+    } else {
+      timerText.textContent = formatTime(rem);
+      nextNote.textContent = 'Next +833 in: ' + formatTime(rem);
     }
+    // disable withdraw if balance < MIN_WITHDRAW
+    if(state.balance < MIN_WITHDRAW){
+      withdrawBtn.disabled = true;
+      withdrawBtn.style.opacity = 0.6;
+      document.getElementById('minNote').textContent = `Minimum withdraw: ${MIN_WITHDRAW} PKR — Your balance less than minimum.`;
+    } else {
+      withdrawBtn.disabled = false;
+      withdrawBtn.style.opacity = 1;
+      document.getElementById('minNote').textContent = `Minimum withdraw: ${MIN_WITHDRAW} PKR`;
+    }
+  }
 
-    setInterval(updateBalance, 1000 * 60); 
-    updateBalance();
-    checkWithdrawStatus();
-  </script>
+  // actions
+  buyNowBtn.addEventListener('click', ()=>{
+    if(!state.planStarted){
+      state.planStarted = true;
+      state.lastTs = Date.now();
+      saveState();
+      tick();
+      alert('Plan started — you will receive +833 PKR every 24 hours.');
+    } else {
+      alert('Plan already active.');
+    }
+  });
+
+  withdrawBtn.addEventListener('click', ()=>{
+    const mobile = mobileInput.value.trim();
+    const amt = Number(amountInput.value || 0);
+    withdrawStatus.textContent = '';
+    if(!mobile){ withdrawStatus.textContent = 'Enter mobile number.'; return; }
+    if(!amt || amt <= 0){ withdrawStatus.textContent = 'Enter valid amount.'; return; }
+    if(amt > state.balance){ withdrawStatus.textContent = 'Insufficient balance.'; return; }
+    if(amt < MIN_WITHDRAW){ withdrawStatus.textContent = `Minimum withdraw is ${MIN_WITHDRAW} PKR.`; return; }
+    // create request
+    const req = {
+      id: Date.now(),
+      mobile,
+      amount: amt,
+      prevBalance: state.balance,
+      date: new Date().toLocaleString(),
+      status: 'Pending'
+    };
+    requests.unshift(req);
+    saveRequests();
+    // zero balance immediately
+    state.balance = 0;
+    saveState();
+    // clear inputs and show status
+    mobileInput.value = '';
+    amountInput.value = '';
+    withdrawStatus.textContent = 'Withdraw requested and sent to admin (Pending).';
+    tick();
+  });
+
+  openAdminBtn.addEventListener('click', ()=>{
+    // open admin.html in new tab; admin file should exist in same folder
+    window.open('admin.html','_blank');
+  });
+
+  // initial bootstrap
+  tick();
+  setInterval(tick, 1000);
+  // expose for debugging if needed (not required)
+  window.__moji = { state, requests, saveState, saveRequests };
+})();
+</script>
 </body>
 </html>
